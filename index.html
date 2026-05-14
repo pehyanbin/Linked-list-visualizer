@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linked List Visualizer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #0f172a;
+      background: linear-gradient(to bottom, #f8fafc, #ffffff);
+    }
+
+    .page {
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    header {
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+
+    main {
+      padding-bottom: 64px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #0f172a;
+      color: white;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .badge.secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 32px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .lead {
+      color: #475569;
+      font-size: 18px;
+      max-width: 760px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .card-content {
+      padding: 24px;
+    }
+
+    .card.hero-preview {
+      padding: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-header p,
+    .muted {
+      color: #475569;
+      margin: 6px 0 0;
+    }
+
+    .linked-list-scroll {
+      overflow-x: auto;
+      padding: 40px 8px;
+    }
+
+    .linked-list {
+      display: flex;
+      align-items: center;
+      min-width: max-content;
+    }
+
+    .head-label {
+      margin-right: 16px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      padding: 12px 16px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      color: #64748b;
+      font-size: 28px;
+    }
+
+    .nil {
+      border-radius: 999px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      padding: 4px 12px;
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .node-wrap {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      overflow: visible;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+    }
+
+    .node-wrap.active {
+      box-shadow: 0 0 0 4px white, 0 0 0 8px #cbd5e1;
+    }
+
+    .node-label {
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .node-prev {
+      padding: 20px 12px;
+      background: #f8fafc;
+      border-right: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .node-value {
+      min-width: 80px;
+      padding: 20px 24px;
+      background: #eef2ff;
+      color: #4338ca;
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .node-next {
+      padding: 20px 16px;
+      border-left: 1px solid #e2e8f0;
+      color: #475569;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 14px;
+    }
+
+    .doubly-note {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #0f172a;
+      color: white;
+      transition: transform 120ms ease, opacity 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    button.outline {
+      background: white;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+    }
+
+    button.danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    input {
+      height: 40px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 14px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .array-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .array-cell {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      background: #f8fafc;
+      transition: all 180ms ease;
+    }
+
+    .array-cell.filled {
+      background: #eef2ff;
+    }
+
+    .array-cell.deleted-target {
+      background: #fee2e2;
+    }
+
+    .playground-top {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    @media (min-width: 1024px) {
+      .playground-top {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+    }
+
+    .title-with-icon {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .trace {
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      padding: 16px;
+    }
+
+    pre {
+      margin: 0;
+      border-radius: 16px;
+      background: #020617;
+      color: #f1f5f9;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .cards-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .icon {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .concept-header {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .concept-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      width: 100%;
+      max-width: 288px;
+    }
+
+    .search-box span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding-left: 36px;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .concept-card {
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      padding: 16px;
+    }
+
+    .concept-card strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .concept-card span {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .iterator-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .state-panel {
+      border-radius: 24px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      padding: 20px;
+      box-shadow: inset 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    .state-panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .state-machine {
+      position: relative;
+      height: 320px;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .state-pill {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      padding: 12px 24px;
+      font-weight: 800;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+
+    .state-pill.active {
+      background: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+
+    .state-pill.before {
+      top: 0;
+    }
+
+    .state-pill.data {
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .state-pill.after {
+      bottom: 0;
+    }
+
+    .line {
+      position: absolute;
+      left: 50%;
+      height: 70px;
+      border-left: 2px dashed #cbd5e1;
+    }
+
+    .line.top {
+      top: 76px;
+    }
+
+    .line.bottom {
+      bottom: 76px;
+    }
+
+    .machine-label {
+      position: absolute;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #64748b;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+
+    .machine-label.right-top {
+      right: 0;
+      top: 70px;
+    }
+
+    .machine-label.right-bottom {
+      right: 0;
+      bottom: 70px;
+    }
+
+    .machine-label.left-mid {
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .state-info-grid {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      color: #475569;
+      font-size: 12px;
+    }
+
+    .state-info-grid div {
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      padding: 12px;
+    }
+
+    .state-info-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .adt-note {
+      margin-top: 20px;
+      border-radius: 16px;
+      border: 1px solid #fcd34d;
+      background: #fffbeb;
+      color: #78350f;
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid-2,
+      .iterator-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .cards-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .concept-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cards-4,
+      .concept-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="container">
+      <span class="badge">COS30008 • Linked Lists</span>
+      <div class="hero">
+        <div>
+          <h1>Linked List Visualizer</h1>
+          <p class="lead">Explore why arrays relocate data, how singly and doubly linked lists connect nodes, how insertion/deletion changes pointers, and how iterators move through states.</p>
+        </div>
+        <div class="card hero-preview">
+          <div id="heroList"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <div class="card-content">
+          <div class="concept-header">
+            <div>
+              <h3>Slide concept map</h3>
+              <p class="muted">Search the major ideas and connect them to the interactive demos.</p>
+            </div>
+            <div class="search-box">
+              <span>⌕</span>
+              <input id="conceptSearch" placeholder="Search concepts..." />
+            </div>
+          </div>
+          <div id="conceptGrid" class="concept-grid"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-content">
+          <div class="section-header">
+            <div>
+              <h3>Why linked lists?</h3>
+              <p>Arrays store elements contiguously, so insertion and deletion often require shifting items.</p>
+            </div>
+            <button id="deleteArrayButton" class="secondary">Delete 5</button>
+          </div>
+          <div id="arrayRow" class="array-row"></div>
+          <p class="muted" style="font-size: 14px;">Average insertion/deletion in an array takes O(n) time because roughly n/2 elements move.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-content">
+          <div class="playground-top">
+            <div>
+              <div class="title-with-icon">
+                <span>🔀</span>
+                <h3>Singly linked list operations</h3>
+              </div>
+              <p class="muted">Each node stores data and one next pointer. The list ends at Nil, represented in C++ as nullptr or a sentinel object.</p>
+            </div>
+            <div class="button-row">
+              <input id="nodeValue" value="9" style="width: 96px;" />
+              <button id="pushFront">＋ Push front</button>
+              <button id="pushBack" class="secondary">＋ Push back</button>
+              <button id="insertAfter" class="secondary">Insert after</button>
+              <button id="deleteAfter" class="danger">🗑 Delete after</button>
+              <button id="resetList" class="outline">↻ Reset</button>
+            </div>
+          </div>
+
+          <div id="operationList"></div>
+          <div id="currentButtons" class="button-row" style="margin-bottom: 16px;"></div>
+
+          <div class="grid-2">
+            <div class="trace">
+              <strong>Action trace</strong>
+              <p id="actionLog" style="margin-bottom: 0;">Start with q → 7 → 6 → 5 → Nil</p>
+            </div>
+            <pre><code id="codeSnippet"></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="cards-4" id="smartPointerCards"></section>
+
+      <section class="card">
+        <div class="card-content">
+          <div class="title-with-icon">
+            <span>⏱</span>
+            <h3>Iterator state transitions</h3>
+          </div>
+          <p class="muted" style="margin-bottom: 20px;">A doubly linked-list iterator can move like a small deterministic finite automaton: BEFORE, DATA, and AFTER. ++ follows next; -- follows previous.</p>
+
+          <div class="iterator-layout">
+            <div class="state-panel">
+              <div class="state-panel-top">
+                <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b;">State machine</span>
+                <span id="stateBadge" class="badge secondary">INIT</span>
+              </div>
+
+              <div class="state-machine">
+                <div id="pillBefore" class="state-pill before">BEFORE</div>
+                <div id="pillData" class="state-pill data">DATA</div>
+                <div id="pillAfter" class="state-pill after">AFTER</div>
+                <div class="line top"></div>
+                <div class="line bottom"></div>
+                <div class="machine-label right-top">++ / --</div>
+                <div class="machine-label right-bottom">Nil check</div>
+                <div class="machine-label left-mid">INIT</div>
+              </div>
+
+              <div class="state-info-grid">
+                <div><b>BEFORE</b><br />Iterator is before the head.</div>
+                <div><b>AFTER</b><br />Iterator is after the tail.</div>
+                <div class="wide"><b>DATA</b><br />Iterator points to a real node and can be dereferenced.</div>
+              </div>
+            </div>
+
+            <div>
+              <div id="iteratorList"></div>
+              <div class="button-row">
+                <button id="iteratorBackward" class="secondary">⟪ operator--</button>
+                <button id="iteratorForward">operator++ ⟫</button>
+                <button id="iteratorReset" class="outline">Reset iterator</button>
+              </div>
+              <p id="iteratorStatus" class="muted">Current state: <b>INIT</b> at a boundary</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-content">
+          <h3>List ADT checklist</h3>
+          <p class="muted">The final abstraction wraps the node structure behind a List class with endpoints, size, copy/move semantics, and iterator methods.</p>
+          <div id="adtBadges" class="button-row"></div>
+          <div class="adt-note">Destructor note: a custom destructor can walk backward from the tail to avoid deep recursive destruction through next links on large lists.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const initialList = ["7", "6", "5"];
+
+    const codeSnippets = {
+      construct: `p = new SinglyLinkedList(5);\nq = new SinglyLinkedList(7, p);`,
+      access: `int a = p->data;\nint b = q->next->data;`,
+      insertAfter: `r = new SinglyLinkedList(6);\nr->next = p;\nq->next = r;`,
+      deleteAfter: `q->next = q->next->next;`,
+      pushBack: `while (*pInsert != nullptr) {\n  pInsert = &((*pInsert)->next);\n}\n*pInsert = new SinglyLinkedList(9);`,
+      iterator: `for (auto& value : SinglyLinkedListIterator(Three)) {\n  std::cout << value << std::endl;\n}`
+    };
+
+    const concepts = [
+      ["Array relocation", "Insertion/deletion shifts elements, O(n)."],
+      ["Singly linked list", "Data plus next pointer; forward traversal only."],
+      ["Nil / nullptr", "Marks the end of the list."],
+      ["Insert node", "Create a node, point it to successor, redirect predecessor."],
+      ["Delete node", "Bypass the node by changing next."],
+      ["Push front", "New node points to old head."],
+      ["Push back", "Find Nil or maintain tail pointer."],
+      ["Shared pointers", "Safer ownership than raw new/delete."],
+      ["Factory method", "makeNode forwards constructor arguments to make_shared."],
+      ["Singly iterator", "Dereference, prefix/postfix ++, equality, begin/end."],
+      ["Doubly linked list", "next and previous links enable bidirectional traversal."],
+      ["Iterator DFA", "BEFORE, DATA, AFTER states with ++ and -- actions."],
+      ["List ADT", "Operations include push, remove, indexing, iteration, copy/move."]
+    ];
+
+    const smartPointerCards = [
+      { icon: "🛡", title: "RAII", text: "Give heap resources to stack objects whose destructors release them automatically." },
+      { icon: "📦", title: "unique_ptr", text: "Exactly one owner. Default choice for plain objects when sharing is not needed." },
+      { icon: "📦", title: "shared_ptr", text: "Reference counted ownership. Useful when multiple owners share one node chain." },
+      { icon: "📦", title: "weak_ptr", text: "Non-owning observer. Breaks shared_ptr cycles in doubly linked structures." }
+    ];
+
+    const adtOps = ["push_front", "push_back", "remove", "operator[]", "begin/end", "rbegin/rend", "copy", "move", "swap", "size"];
+
+    let playgroundList = [...initialList];
+    let activeIndex = 0;
+    let arrayDeleted = false;
+    let iteratorState = "INIT";
+    let iteratorPosition = -1;
+    const iteratorData = ["A", "B", "C"];
+
+    function createNode(value, active, mode, labelTail) {
+      const node = document.createElement("div");
+      node.className = "node-wrap" + (active ? " active" : "");
+
+      if (labelTail) {
+        const label = document.createElement("div");
+        label.className = "node-label";
+        label.textContent = labelTail;
+        node.appendChild(label);
+      }
+
+      if (mode === "doubly") {
+        const prev = document.createElement("div");
+        prev.className = "node-prev";
+        prev.textContent = "prev";
+        node.appendChild(prev);
+      }
+
+      const data = document.createElement("div");
+      data.className = "node-value";
+      data.textContent = value;
+      node.appendChild(data);
+
+      const next = document.createElement("div");
+      next.className = "node-next";
+      next.textContent = "next";
+      node.appendChild(next);
+
+      return node;
+    }
+
+    function createArrow(options = {}) {
+      const arrow = document.createElement("div");
+      arrow.className = "arrow";
+
+      if (options.nil) {
+        const nil = document.createElement("span");
+        nil.className = "nil";
+        nil.textContent = "Nil";
+        arrow.appendChild(nil);
+      } else {
+        arrow.textContent = options.backward ? "←" : "→";
+      }
+
+      return arrow;
+    }
+
+    function renderLinkedList(targetId, list, selectedIndex, mode = "singly", labelHead = "head", labelTail = "tail") {
+      const target = document.getElementById(targetId);
+      target.innerHTML = "";
+
+      const scroll = document.createElement("div");
+      scroll.className = "linked-list-scroll";
+
+      const row = document.createElement("div");
+      row.className = "linked-list";
+
+      const head = document.createElement("div");
+      head.className = "head-label";
+      head.textContent = labelHead;
+      row.appendChild(head);
+      row.appendChild(createArrow());
+
+      list.forEach((value, index) => {
+        row.appendChild(createNode(value, index === selectedIndex, mode, index === list.length - 1 ? labelTail : ""));
+        row.appendChild(createArrow({ nil: index === list.length - 1 }));
+      });
+
+      scroll.appendChild(row);
+      target.appendChild(scroll);
+
+      if (mode === "doubly" && list.length > 1) {
+        const note = document.createElement("div");
+        note.className = "doubly-note";
+        note.textContent = "← previous links allow backward traversal and make end deletion easier";
+        target.appendChild(note);
+      }
+    }
+
+    function renderConcepts() {
+      const query = document.getElementById("conceptSearch").value.toLowerCase();
+      const grid = document.getElementById("conceptGrid");
+      grid.innerHTML = "";
+
+      concepts
+        .filter(([title, desc]) => `${title} ${desc}`.toLowerCase().includes(query))
+        .forEach(([title, desc]) => {
+          const card = document.createElement("div");
+          card.className = "concept-card";
+          card.innerHTML = `<strong>${title}</strong><span>${desc}</span>`;
+          grid.appendChild(card);
+        });
+    }
+
+    function renderArray() {
+      const before = ["3", "5", "29", "20", "4", "", ""];
+      const after = ["3", "29", "20", "4", "", "", ""];
+      const row = document.getElementById("arrayRow");
+      row.innerHTML = "";
+
+      (arrayDeleted ? after : before).forEach((value) => {
+        const cell = document.createElement("div");
+        cell.className = "array-cell";
+        if (value) cell.classList.add("filled");
+        if (value === "5") cell.classList.add("deleted-target");
+        cell.textContent = value;
+        row.appendChild(cell);
+      });
+
+      document.getElementById("deleteArrayButton").textContent = arrayDeleted ? "Reset" : "Delete 5";
+    }
+
+    function renderPlayground() {
+      renderLinkedList("operationList", playgroundList, activeIndex);
+
+      const currentButtons = document.getElementById("currentButtons");
+      currentButtons.innerHTML = "";
+
+      playgroundList.forEach((value, index) => {
+        const button = document.createElement("button");
+        button.className = index === activeIndex ? "" : "outline";
+        button.textContent = `current = ${value}`;
+        button.onclick = () => {
+          activeIndex = index;
+          document.getElementById("actionLog").textContent = `Current node is ${value}. Access data with pointer->data; move with pointer->next.`;
+          document.getElementById("codeSnippet").textContent = codeSnippets.access;
+          renderPlayground();
+        };
+        currentButtons.appendChild(button);
+      });
+    }
+
+    function getInputValue() {
+      return document.getElementById("nodeValue").value || "X";
+    }
+
+    function setTrace(message, snippet) {
+      document.getElementById("actionLog").textContent = message;
+      document.getElementById("codeSnippet").textContent = snippet;
+    }
+
+    function renderSmartPointers() {
+      const holder = document.getElementById("smartPointerCards");
+      holder.innerHTML = "";
+
+      smartPointerCards.forEach((item) => {
+        const card = document.createElement("section");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="card-content">
+            <div class="icon">${item.icon}</div>
+            <h3>${item.title}</h3>
+            <p class="muted" style="font-size: 14px;">${item.text}</p>
+          </div>
+        `;
+        holder.appendChild(card);
+      });
+    }
+
+    function renderIterator() {
+      renderLinkedList("iteratorList", iteratorData, iteratorState === "DATA" ? iteratorPosition : undefined, "doubly");
+
+      document.getElementById("stateBadge").textContent = iteratorState;
+      document.getElementById("pillBefore").classList.toggle("active", iteratorState === "BEFORE");
+      document.getElementById("pillData").classList.toggle("active", iteratorState === "DATA");
+      document.getElementById("pillAfter").classList.toggle("active", iteratorState === "AFTER");
+
+      const detail = iteratorState === "DATA" ? ` at node ${iteratorData[iteratorPosition]}` : " at a boundary";
+      document.getElementById("iteratorStatus").innerHTML = `Current state: <b>${iteratorState}</b>${detail}`;
+    }
+
+    function renderAdt() {
+      const holder = document.getElementById("adtBadges");
+      holder.innerHTML = "";
+
+      adtOps.forEach((op) => {
+        const badge = document.createElement("span");
+        badge.className = "badge secondary";
+        badge.textContent = op;
+        holder.appendChild(badge);
+      });
+    }
+
+    document.getElementById("conceptSearch").addEventListener("input", renderConcepts);
+
+    document.getElementById("deleteArrayButton").addEventListener("click", () => {
+      arrayDeleted = !arrayDeleted;
+      renderArray();
+    });
+
+    document.getElementById("pushFront").addEventListener("click", () => {
+      const value = getInputValue();
+      playgroundList = [value, ...playgroundList];
+      activeIndex = 0;
+      setTrace(`Inserted ${value} at the top: new node points to the old head.`, `head = new Node(${value}, head);`);
+      renderPlayground();
+    });
+
+    document.getElementById("pushBack").addEventListener("click", () => {
+      const value = getInputValue();
+      playgroundList = [...playgroundList, value];
+      activeIndex = playgroundList.length - 1;
+      setTrace(`Inserted ${value} at the end after searching for Nil.`, codeSnippets.pushBack);
+      renderPlayground();
+    });
+
+    document.getElementById("insertAfter").addEventListener("click", () => {
+      const value = getInputValue();
+      playgroundList.splice(activeIndex + 1, 0, value);
+      activeIndex += 1;
+      setTrace(`Inserted ${value} after the current node by redirecting next pointers.`, codeSnippets.insertAfter);
+      renderPlayground();
+    });
+
+    document.getElementById("deleteAfter").addEventListener("click", () => {
+      if (activeIndex >= playgroundList.length - 1) {
+        setTrace("Nothing to delete after the current node because next is Nil.", codeSnippets.deleteAfter);
+        return;
+      }
+
+      const deleted = playgroundList[activeIndex + 1];
+      playgroundList.splice(activeIndex + 1, 1);
+      setTrace(`Deleted node ${deleted} after the current node: current.next skips over it.`, codeSnippets.deleteAfter);
+      renderPlayground();
+    });
+
+    document.getElementById("resetList").addEventListener("click", () => {
+      playgroundList = [...initialList];
+      activeIndex = 0;
+      setTrace("Start with q → 7 → 6 → 5 → Nil", codeSnippets.construct);
+      renderPlayground();
+    });
+
+    document.getElementById("iteratorForward").addEventListener("click", () => {
+      if (iteratorState === "INIT" || iteratorState === "BEFORE") {
+        iteratorState = iteratorData.length ? "DATA" : "AFTER";
+        iteratorPosition = 0;
+      } else if (iteratorState === "DATA") {
+        if (iteratorPosition + 1 >= iteratorData.length) {
+          iteratorState = "AFTER";
+          iteratorPosition = iteratorData.length;
+        } else {
+          iteratorPosition += 1;
+        }
+      }
+      renderIterator();
+    });
+
+    document.getElementById("iteratorBackward").addEventListener("click", () => {
+      if (iteratorState === "INIT" || iteratorState === "AFTER") {
+        iteratorState = iteratorData.length ? "DATA" : "BEFORE";
+        iteratorPosition = iteratorData.length - 1;
+      } else if (iteratorState === "DATA") {
+        if (iteratorPosition - 1 < 0) {
+          iteratorState = "BEFORE";
+          iteratorPosition = -1;
+        } else {
+          iteratorPosition -= 1;
+        }
+      }
+      renderIterator();
+    });
+
+    document.getElementById("iteratorReset").addEventListener("click", () => {
+      iteratorState = "INIT";
+      iteratorPosition = -1;
+      renderIterator();
+    });
+
+    renderLinkedList("heroList", ["CCCC", "BBBB", "AAAA"], 0);
+    renderConcepts();
+    renderArray();
+    renderPlayground();
+    renderSmartPointers();
+    renderIterator();
+    renderAdt();
+    document.getElementById("codeSnippet").textContent = codeSnippets.construct;
+  </script>
+</body>
+</html>
